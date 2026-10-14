@@ -1,0 +1,16 @@
+[Unit]
+Description=LiDRON Airborne MAVLink Bridge
+After=network.target
+
+[Service]
+Type=simple
+User=lidron-blueberry
+SupplementaryGroups=dialout
+WorkingDirectory=/home/lidron-blueberry/Telemetry-Communication
+Environment=PYTHONUNBUFFERED=1
+ExecStart=/home/lidron-blueberry/Telemetry-Communication/.venv/bin/python /home/lidron-blueberry/Telemetry-Communication/airborne/airborne_bridge.py --pixhawk /dev/serial/by-id/usb-ArduPilot_Pixhawk6x_43004E000251323436333634-if00 --pixhawk-baud 115200 --radio /dev/serial/by-id/usb-FTDI_FT231X_USB_UART_D30IKKLP-if00-port0 --radio-baud 57600 --stream-rate 4
+Restart=always
+RestartSec=2
+
+[Install]
+WantedBy=multi-user.target
