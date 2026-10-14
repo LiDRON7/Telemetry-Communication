@@ -1,5 +1,6 @@
 import argparse
 import math
+import socket
 import time
 
 from pymavlink import mavutil
@@ -13,6 +14,26 @@ def open_connection(endpoint, baud, source_system=246):
         source_component=191,
         autoreconnect=False,
     )
+
+
+def open_udp_output(endpoint):
+    prefix = "udpout:"
+    if not endpoint.startswith(prefix):
+        raise ValueError(
+            "Mission Planner endpoint must use udpout:HOST:PORT"
+        )
+
+    address = endpoint[len(prefix):]
+    try:
+        host, port = address.rsplit(":", 1)
+        destination = (host, int(port))
+    except ValueError as error:
+        raise ValueError(
+            "Mission Planner endpoint must use udpout:HOST:PORT"
+        ) from error
+
+    udp_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    return udp_socket, destination
 
 
 def close_connection(connection):
@@ -98,15 +119,15 @@ def run_bridge(args):
     while True:
         radio = None
         mission_planner = None
+        mission_planner_address = None
 
         try:
             print(f"Opening ground radio input: {args.radio}")
             radio = open_connection(args.radio, args.radio_baud)
 
             print(f"Opening Mission Planner output: {args.mission_planner}")
-            mission_planner = open_connection(
-                args.mission_planner,
-                args.mission_planner_baud,
+            mission_planner, mission_planner_address = open_udp_output(
+                args.mission_planner
             )
 
             state = {
@@ -143,7 +164,7 @@ def run_bridge(args):
                     continue
 
                 # Mission Planner receives the original Pixhawk MAVLink frame.
-                mission_planner.write(frame)
+                mission_planner.sendto(frame, mission_planner_address)
                 message_count += 1
                 byte_count += len(frame)
                 update_telemetry(state, message)
@@ -190,12 +211,6 @@ def parse_arguments():
         "--mission-planner",
         default="udpout:127.0.0.1:14550",
         help="Mission Planner MAVLink output endpoint",
-    )
-    parser.add_argument(
-        "--mission-planner-baud",
-        type=int,
-        default=115200,
-        help="Baud rate if the Mission Planner output is serial",
     )
     parser.add_argument(
         "--status-interval",
