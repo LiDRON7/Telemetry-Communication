@@ -1,5 +1,5 @@
 [Unit]
-Description=LiDRON Airborne MAVLink Bridge
+Description=LiDRON ROS 2 Airborne MAVLink Bridge
 After=network.target
 
 [Service]
@@ -8,7 +8,8 @@ User=lidron-blueberry
 SupplementaryGroups=dialout
 WorkingDirectory=/home/lidron-blueberry/Telemetry-Communication
 Environment=PYTHONUNBUFFERED=1
-ExecStart=/home/lidron-blueberry/Telemetry-Communication/.venv/bin/python /home/lidron-blueberry/Telemetry-Communication/airborne/airborne_bridge.py --pixhawk /dev/serial/by-id/usb-ArduPilot_Pixhawk6x_43004E000251323436333634-if00 --pixhawk-baud 115200 --radio /dev/serial/by-id/usb-FTDI_FT231X_USB_UART_D30IKKLP-if00-port0 --radio-baud 57600 --stream-rate 4
+Environment=ROS_DISTRO=jazzy
+ExecStart=/bin/bash -c 'source /opt/ros/${ROS_DISTRO}/setup.bash && source /home/lidron-blueberry/Telemetry-Communication/install/setup.bash && exec ros2 run airborne airborne_bridge --ros-args -p pixhawk:=/dev/serial/by-id/usb-ArduPilot_Pixhawk6X_43004E000251323436333634-if00 -p pixhawk_baud:=115200 -p radio:=/dev/serial/by-id/usb-FTDI_FT231X_USB_UART_D30IL4V3-if00-port0 -p radio_baud:=57600 -p stream_rate:=4'
 Restart=always
 RestartSec=2
 
