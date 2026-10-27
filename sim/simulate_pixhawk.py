@@ -135,7 +135,7 @@ def run_simulator(args):
             if now >= next_gps:
                 connection.mav.gps_raw_int_send(
                     int(time.time() * 1_000_000),
-                    3,
+                    args.gps_fix_type,
                     latitude_int,
                     longitude_int,
                     altitude_mm,
@@ -197,6 +197,13 @@ def parse_arguments():
         "--output",
         default="udpout:127.0.0.1:14600",
         help="MAVLink output endpoint",
+    )
+    parser.add_argument(
+        "--gps-fix-type",
+        type=int,
+        choices=range(9),
+        default=3,
+        help="MAVLink GPS fix: 3=3D, 5=RTK float, 6=RTK fixed (simulated only)",
     )
     parser.add_argument(
         "--system-id",

@@ -1,0 +1,17 @@
+airborne_bridge:
+  ros__parameters:
+    pixhawk: /dev/ttyACM0
+    pixhawk_baud: 115200
+    radio: /dev/ttyUSB0
+    radio_baud: 57600
+    source_system: 245
+    target_system: 1
+    target_component: 1
+    stream_rate: 10
+    skip_stream_request: false
+    reconnect_delay: 2.0
+    link_timeout: 5.0
+    gps_timeout: 3.0
+    status_interval: 5.0
+    frame_id: gps_link
+    debug_gps: false
